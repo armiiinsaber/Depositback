@@ -338,8 +338,14 @@ export default function DepositBack() {
           {/* Rental address */}
           <div style={s.sectionHeader}>Rental Property Address</div>
           <div style={s.row}>
-            <div style={s.field}><label style={s.label}>Unit / Apt Number <span style={s.optional}>(if applicable)</span></label><input style={s.input} placeholder='4B' value={form.unit} onChange={e=>f('unit',e.target.value)} /></div>
-            <div style={s.field}><label style={s.label}>Postal Code</label><input style={s.input} placeholder='M5V 1A1' value={form.postalCode} onChange={e=>f('postalCode',e.target.value)} /></div>
+            <div style={s.field}><label style={s.label}>Unit / Apt <span style={s.optional}>(optional)</span></label><input style={s.input} placeholder='4B' value={form.unit} onChange={e=>f('unit',e.target.value)} /></div>
+            <div style={s.field}><label style={s.label}>Postal Code</label><input style={s.input} placeholder='M5V 1A1' value={form.postalCode}
+  maxLength={7}
+  onChange={e => {
+    let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+    if (v.length > 3) v = v.slice(0,3) + ' ' + v.slice(3);
+    f('postalCode', v);
+  }} /></div>
           </div>
           <div style={s.field}><label style={s.label}>Street Address</label><input style={s.input} placeholder='123 Main Street' value={form.streetAddress} onChange={e=>f('streetAddress',e.target.value)} /></div>
           <div style={s.field}>
@@ -359,9 +365,9 @@ export default function DepositBack() {
           <div style={s.sectionHeader}>Deposit Details</div>
           <div style={s.row}>
             <div style={s.field}><label style={s.label}>Move-Out Date</label><input style={s.input} type='date' value={form.moveOutDate} onChange={e=>f('moveOutDate',e.target.value)} /></div>
-            <div style={s.field}><label style={s.label}>Total Deposit Paid ($CAD)</label><input style={s.input} type='number' placeholder='1200' value={form.depositAmount} onChange={e=>f('depositAmount',e.target.value)} /></div>
+            <div style={s.field}><label style={s.label}>Deposit Paid</label><input style={s.input} type='number' placeholder='1200' value={form.depositAmount} onChange={e=>f('depositAmount',e.target.value)} /></div>
           </div>
-          <div style={s.field}><label style={s.label}>Amount Returned ($CAD) — enter 0 if nothing returned</label><input style={s.input} type='number' placeholder='0' value={form.returnedAmount} onChange={e=>f('returnedAmount',e.target.value)} /></div>
+          <div style={s.field}><label style={s.label}>Amount Returned <span style={s.optional}>(0 if none)</span></label><input style={s.input} type='number' placeholder='0' value={form.returnedAmount} onChange={e=>f('returnedAmount',e.target.value)} /></div>
           {form.depositAmount && <div style={s.amountBar}><span style={s.amountLabel}>Amount in dispute</span><span style={s.amountVal}>${withheld.toFixed(2)} CAD</span></div>}
 
           {/* Reasons */}
