@@ -33,8 +33,15 @@ const REASON_LABELS = {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { province, fullName, fullAddress, landlordName, landlordAddress,
+  const { province, firstName, middleName, lastName,
+    fullName: passedFullName, fullAddress: passedFullAddress,
+    unit, streetAddress, city, postalCode,
+    landlordName, landlordAddress,
     moveOutDate, depositAmount, returnedAmount, reasons, extraDetails } = req.body;
+
+  // Compute fullName and fullAddress server-side as fallback
+  const fullName = passedFullName || [firstName, middleName, lastName].filter(Boolean).join(' ') || 'Tenant';
+  const fullAddress = passedFullAddress || [unit ? 'Unit ' + unit + ',' : '', streetAddress, city, province, postalCode].filter(Boolean).join(' ') || 'Rental Address';
 
 
 
