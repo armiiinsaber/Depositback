@@ -105,6 +105,7 @@ export default function DepositBack() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('paid') === 'true') {
+      const sessionId = params.get('session_id') || '';
       // Clear URL immediately so this NEVER fires twice
       window.history.replaceState({}, '', '/');
       const saved = localStorage.getItem('db_form');
@@ -114,7 +115,7 @@ export default function DepositBack() {
         try {
           const parsed = JSON.parse(saved);
           setForm(parsed);
-          setTimeout(() => generateLetter(parsed), 100);
+          setTimeout(() => generateLetter({...parsed, stripeSessionId: sessionId}), 100);
         } catch {}
       }
     }
@@ -158,7 +159,8 @@ export default function DepositBack() {
   const generate = async () => {
     // Save form data before redirecting to Stripe
     localStorage.setItem('db_form', JSON.stringify({...form, fullName, fullAddress}));
-    const successUrl = encodeURIComponent(window.location.origin + '/?paid=true');
+    // Include Stripe session ID in success URL so we can verify payment server-side
+    const successUrl = encodeURIComponent(window.location.origin + '/?paid=true&session_id={CHECKOUT_SESSION_ID}');
     window.location.href = STRIPE_LINK + '?success_url=' + successUrl;
   };
 
