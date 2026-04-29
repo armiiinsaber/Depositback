@@ -251,7 +251,7 @@ export default function DepositBack() {
             <span style={{background:'#ff4d4d',color:'#fff',fontSize:11,fontWeight:700,padding:'3px 8px',borderRadius:4,letterSpacing:'1px'}}>30% OFF</span>
             <span style={{color:'#3d6480',fontSize:14,textDecoration:'line-through'}}>$9.99 CAD</span>
           </div>
-          <button style={{...s.cta, whiteSpace:'nowrap'}} onClick={() => setStep('form')}>Get My Letter — $6.99 CAD</button>
+          <button style={{...s.cta, whiteSpace:'nowrap'}} onClick={() => setStep('form')} style={{...s.cta,whiteSpace:'nowrap'}}>Get My Letter — $6.99</button>
         </div>
         <p style={s.note}>One-time · No account · Letter in 60 seconds</p>
       </div>
@@ -498,7 +498,7 @@ const styles = {
   eyebrow:{fontSize:11,letterSpacing:'3px',textTransform:'uppercase',color:'#5aacff',marginBottom:20,fontFamily:'monospace'},
   h1:{fontSize:'clamp(28px,4.2vw,52px)',fontWeight:700,lineHeight:1.15,marginBottom:20,letterSpacing:'-1px',color:'#fff',textAlign:'center'},
   sub:{fontSize:16,color:'#8ab4d4',lineHeight:1.65,maxWidth:480,margin:'0 auto 36px'},
-  cta:{background:'#5aacff',color:'#08121f',border:'none',padding:'15px 44px',fontSize:15,fontWeight:700,borderRadius:6,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 4px 24px rgba(90,172,255,.3)'},
+  cta:{background:'#5aacff',color:'#08121f',border:'none',padding:'15px 44px',fontSize:15,fontWeight:700,borderRadius:6,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 4px 24px rgba(90,172,255,.3)',whiteSpace:'nowrap'},
   note:{fontSize:11,color:'#3d6480',marginTop:10},
   stats:{display:'flex',justifyContent:'center',gap:40,flexWrap:'wrap',padding:'28px 24px',borderTop:'1px solid #1b3454',borderBottom:'1px solid #1b3454',maxWidth:560,margin:'0 auto'},
   statNum:{fontSize:30,fontWeight:700,color:'#5aacff',display:'block',letterSpacing:'-1px'},
