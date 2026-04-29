@@ -105,13 +105,17 @@ export default function DepositBack() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('paid') === 'true') {
+      // Clear URL immediately so this NEVER fires twice
+      window.history.replaceState({}, '', '/');
       const saved = localStorage.getItem('db_form');
       if (saved) {
-        const parsed = JSON.parse(saved);
-        setForm(parsed);
-        window.history.replaceState({}, '', '/');
-        // slight delay to let state settle
-        setTimeout(() => generateLetter(parsed), 100);
+        // Clear localStorage immediately so it can never fire again
+        localStorage.removeItem('db_form');
+        try {
+          const parsed = JSON.parse(saved);
+          setForm(parsed);
+          setTimeout(() => generateLetter(parsed), 100);
+        } catch {}
       }
     }
   }, []);
