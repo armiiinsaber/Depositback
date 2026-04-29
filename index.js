@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
+const GlobalStyle = () => (
+  <style global jsx>{`
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #08121f; overflow-x: hidden; }
+  `}</style>
+);
+
 const PROVINCES = [
   { value: 'ON', label: 'Ontario', days: 30 },
   { value: 'BC', label: 'British Columbia', days: 15 },
@@ -126,7 +133,8 @@ export default function DepositBack() {
 
   const polishDetails = async () => {
     const raw = form.extraDetails.trim();
-    if (!raw || raw.length < 10) return;
+    // Only fire if >30 chars, not already polished, and not already polishing
+    if (!raw || raw.length < 30 || polished || polishing) return;
     setPolishing(true); setPolished(false);
     try {
       const res = await fetch('/api/polish', {
@@ -229,6 +237,7 @@ export default function DepositBack() {
   if (step === 'landing') return (
     <div style={s.page}>
       <Head><title>DepositBack — Time to Get It Back</title></Head>
+      <GlobalStyle />
       <nav style={s.nav}>
         <span style={s.logo}>Deposit<span style={s.blue}>Back</span></span>
         <span style={s.tag}>🇨🇦 Canada</span>
@@ -242,7 +251,7 @@ export default function DepositBack() {
             <span style={{background:'#ff4d4d',color:'#fff',fontSize:11,fontWeight:700,padding:'3px 8px',borderRadius:4,letterSpacing:'1px'}}>30% OFF</span>
             <span style={{color:'#3d6480',fontSize:14,textDecoration:'line-through'}}>$9.99 CAD</span>
           </div>
-          <button style={s.cta} onClick={() => setStep('form')}>Generate My Letter — $6.99 CAD</button>
+          <button style={{...s.cta, whiteSpace:'nowrap'}} onClick={() => setStep('form')}>Get My Letter — $6.99 CAD</button>
         </div>
         <p style={s.note}>One-time · No account · Letter in 60 seconds</p>
       </div>
@@ -369,16 +378,15 @@ export default function DepositBack() {
           <div style={s.field}>
             <label style={s.label}>
               Your situation in your own words <span style={s.optional}>(optional)</span>
-              {polishing && <span style={s.aiStatus}> ✦ Rewriting…</span>}
-              {polished && <span style={s.aiDone}> ✓ Improved</span>}
+              
             </label>
             <textarea style={s.textarea}
               placeholder="Write anything — what happened, what the landlord said, any important dates. Don't worry about grammar. AI will rewrite it professionally."
               value={form.extraDetails}
               onChange={e=>{f('extraDetails',e.target.value);setPolished(false);}}
-              onBlur={polishDetails}
+              
             />
-            <p style={s.fieldHint}>✦ AI automatically rewrites your words into professional legal language when you leave this field</p>
+            <p style={s.fieldHint}>✦ Your words will be professionally rewritten after payment</p>
           </div>
 
           {/* Summary */}
@@ -404,7 +412,7 @@ export default function DepositBack() {
           {error && <div style={s.error}>{error}</div>}
 
           <button style={{...s.cta,width:'100%',padding:16,fontSize:16,opacity:isValid?1:0.4,boxSizing:'border-box'}} onClick={isValid?generate:undefined} disabled={!isValid}>
-            🔒 {isValid ? 'Pay $6.99 CAD & Generate Letter' : 'Complete required fields above'}
+            🔒 {isValid ? 'Generate My Letter — $6.99 CAD' : 'Complete required fields above'}
           </button>
           <p style={{...s.note,marginTop:10}}>Secure payment via Stripe · Apple Pay & Google Pay accepted</p>
         </div>
@@ -481,7 +489,7 @@ export default function DepositBack() {
 }
 
 const styles = {
-  page:{minHeight:'100vh',background:'#08121f',color:'#fff',fontFamily:"Georgia,'Times New Roman',serif"},
+  page:{minHeight:'100vh',background:'#08121f',color:'#fff',fontFamily:"Georgia,'Times New Roman',serif",margin:0,padding:0,overflowX:'hidden'},
   nav:{padding:'18px 28px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:'1px solid #1b3454'},
   logo:{fontSize:20,fontWeight:700,color:'#fff',cursor:'pointer'},
   blue:{color:'#5aacff'},
