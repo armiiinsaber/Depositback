@@ -99,8 +99,6 @@ export default function DepositBack() {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
-  const [polishing, setPolishing] = useState(false);
-  const [polished, setPolished] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -136,25 +134,6 @@ export default function DepositBack() {
     reasons: prev.reasons.includes(id) ? prev.reasons.filter(x => x !== id) : [...prev.reasons, id],
   }));
 
-  const polishDetails = async () => {
-    const raw = form.extraDetails.trim();
-    // Only fire if >30 chars, not already polished, and not already polishing
-    if (!raw || raw.length < 30 || polished || polishing) return;
-    setPolishing(true); setPolished(false);
-    try {
-      const res = await fetch('/api/polish', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: raw }),
-      });
-      const data = await res.json();
-      if (data.polished && data.polished !== raw) {
-        f('extraDetails', data.polished);
-        setPolished(true);
-        setTimeout(() => setPolished(false), 3000);
-      }
-    } catch {}
-    finally { setPolishing(false); }
-  };
 
   const generate = async () => {
     // Save form data before redirecting to Stripe
@@ -555,8 +534,6 @@ const styles = {
   reasonActive:{background:'#0f2444',borderColor:'#5aacff',color:'#5aacff'},
   textarea:{width:'100%',background:'#0e1f36',border:'1px solid #1b3454',borderRadius:6,padding:'11px 13px',color:'#fff',fontSize:14,fontFamily:'inherit',outline:'none',resize:'vertical',minHeight:100,boxSizing:'border-box'},
   fieldHint:{fontSize:10,color:'#3d6480',marginTop:5,fontFamily:'monospace'},
-  aiStatus:{color:'#5aacff',fontSize:10,marginLeft:8,fontFamily:'monospace',textTransform:'none',letterSpacing:0},
-  aiDone:{color:'#5aff9a',fontSize:10,marginLeft:8,fontFamily:'monospace',textTransform:'none',letterSpacing:0},
   summary:{background:'#0e1f36',border:'1px solid #1b3454',borderRadius:8,padding:18,marginBottom:18,marginTop:8},
   summaryTitle:{fontSize:10,letterSpacing:'1.5px',textTransform:'uppercase',color:'#5aacff',marginBottom:12,fontFamily:'monospace'},
   summaryRow:{display:'flex',justifyContent:'space-between',padding:'7px 0',borderBottom:'1px solid #1b3454',fontSize:12},
