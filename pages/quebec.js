@@ -98,7 +98,7 @@ export default function QuebecPage() {
         </div>
 
         <div style={s.statGrid}>
-          {[['Illegal','Security deposits — completely, always, no exceptions'],['100%','Amount you're owed back — the full deposit'],['TAL','Tribunal administratif du logement — free to file'],['Art. 1904','The Civil Code article that protects you']].map(([n,l]) => (
+          {[['Illegal','Security deposits — completely, always, no exceptions'],['100%','Amount owed back — the full deposit'],['TAL','Tribunal administratif du logement — free to file'],['Art. 1904','The Civil Code article that protects you']].map(([n,l]) => (
             <div key={l} style={s.statCard}><div style={s.statNum}>{n}</div><div style={s.statLabel}>{l}</div></div>
           ))}
         </div>
