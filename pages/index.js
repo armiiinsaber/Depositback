@@ -329,7 +329,7 @@ export default function DepositBack() {
 
           {/* Tenant name */}
           <div style={s.sectionHeader}>Your Full Legal Name</div>
-          <div style={s.row3}>
+          <div style={{...s.row3, gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))'}}>
             <div style={s.field}><label style={s.label}>First Name</label><input style={s.input} placeholder='Jane' value={form.firstName} onChange={e=>f('firstName',e.target.value)} /></div>
             <div style={s.field}><label style={s.label}>Middle Name <span style={s.optional}>(optional)</span></label><input style={s.input} placeholder='Marie' value={form.middleName} onChange={e=>f('middleName',e.target.value)} /></div>
             <div style={s.field}><label style={s.label}>Last Name</label><input style={s.input} placeholder='Smith' value={form.lastName} onChange={e=>f('lastName',e.target.value)} /></div>
@@ -337,7 +337,7 @@ export default function DepositBack() {
 
           {/* Rental address */}
           <div style={s.sectionHeader}>Rental Property Address</div>
-          <div style={s.row}>
+          <div style={{...s.row}} className='db-row-2col'>
             <div style={s.field}><label style={s.label}>Unit / Apt <span style={s.optional}>(optional)</span></label><input style={s.input} placeholder='4B' value={form.unit} onChange={e=>f('unit',e.target.value)} /></div>
             <div style={s.field}><label style={s.label}>Postal Code</label><input style={s.input} placeholder='M5V 1A1' value={form.postalCode}
   maxLength={7}
@@ -363,10 +363,8 @@ export default function DepositBack() {
 
           {/* Deposit */}
           <div style={s.sectionHeader}>Deposit Details</div>
-          <div style={s.row}>
-            <div style={s.field}><label style={s.label}>Move-Out Date</label><input style={s.input} type='date' value={form.moveOutDate} onChange={e=>f('moveOutDate',e.target.value)} /></div>
-            <div style={s.field}><label style={s.label}>Deposit Paid</label><input style={s.input} type='number' placeholder='1200' value={form.depositAmount} onChange={e=>f('depositAmount',e.target.value)} /></div>
-          </div>
+          <div style={s.field}><label style={s.label}>Move-Out Date</label><input style={s.input} type='date' value={form.moveOutDate} onChange={e=>f('moveOutDate',e.target.value)} /></div>
+          <div style={s.field}><label style={s.label}>Deposit Paid ($CAD)</label><input style={s.input} type='number' placeholder='1200' value={form.depositAmount} onChange={e=>f('depositAmount',e.target.value)} /></div>
           <div style={s.field}><label style={s.label}>Amount Returned <span style={s.optional}>(0 if none)</span></label><input style={s.input} type='number' placeholder='0' value={form.returnedAmount} onChange={e=>f('returnedAmount',e.target.value)} /></div>
           {form.depositAmount && <div style={s.amountBar}><span style={s.amountLabel}>Amount in dispute</span><span style={s.amountVal}>${withheld.toFixed(2)} CAD</span></div>}
 
