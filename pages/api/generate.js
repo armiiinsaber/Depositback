@@ -17,7 +17,6 @@ const PROVINCE_NAMES = {
   MB:'Manitoba',SK:'Saskatchewan',NS:'Nova Scotia',NB:'New Brunswick',NL:'Newfoundland',PE:'PEI',
 };
 const DAYS = {ON:30,BC:15,AB:10,QC:30,MB:14,SK:7,NS:10,NB:7,NL:15,PE:10};
-
 const REASON_LABELS = {
   deadline:'Landlord missed the legal deposit return deadline',
   wearandtear:'Deductions for normal wear and tear (not permissible by law)',
@@ -29,10 +28,39 @@ const REASON_LABELS = {
   noinspection:'No move-out inspection was conducted by the landlord',
 };
 
+// Verify Stripe payment session before generating
+async function verifyStripeSession(sessionId) {
+  if (!sessionId) return false;
+  try {
+    const res = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sessionId}`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.STRIPE_SECRET_KEY}`,
+      },
+    });
+    const session = await res.json();
+    // Must be a completed payment
+    return session.payment_status === 'paid';
+  } catch {
+    return false;
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
+
   const { province, fullName, fullAddress, landlordName, landlordAddress,
-    moveOutDate, depositAmount, returnedAmount, reasons, extraDetails } = req.body;
+    moveOutDate, depositAmount, returnedAmount, reasons, extraDetails,
+    stripeSessionId } = req.body;
+
+  // ── PAYMENT GATE ─────────────────────────────────────────────────────────
+  // In production, verify Stripe payment. Skip only if DEMO_MODE is set.
+  if (process.env.DEMO_MODE !== 'true') {
+    const paid = await verifyStripeSession(stripeSessionId);
+    if (!paid) {
+      return res.status(402).json({ error: 'Payment required. Please complete checkout first.' });
+    }
+  }
+  // ─────────────────────────────────────────────────────────────────────────
 
   const disputed = (parseFloat(depositAmount) - parseFloat(returnedAmount||0)).toFixed(2);
   const act = LEGISLATION[province] || 'the applicable Residential Tenancies Act';
@@ -46,10 +74,9 @@ export default async function handler(req, res) {
 
 CRITICAL RULES — NEVER BREAK THESE:
 - NEVER write "on behalf of" — you are the author, not a representative
-- NEVER refer to the tenant in third person ("the tenant", "Armin Saber has...")
+- NEVER refer to the tenant in third person
 - ALWAYS use first person: "I am writing", "I demand", "my deposit", "I moved out"
 - The letter opens with "I am writing to formally demand..." NOT "I am writing on behalf of..."
-- Signed by the tenant themselves at the bottom
 
 TODAY'S DATE: ${today}
 PROVINCE: ${provinceName}
@@ -67,29 +94,29 @@ AMOUNT IN DISPUTE: $${disputed} CAD
 
 DISPUTE GROUNDS:
 ${reasonsList.map((r,i)=>`${i+1}. ${r}`).join('\n')}
-${extraDetails?'\nADDITIONAL DETAILS PROVIDED BY TENANT:\n'+extraDetails:''}
+${extraDetails?'\nADDITIONAL DETAILS:\n'+extraDetails:''}
 
 LETTER FORMAT:
 - Date: ${today}
 - Tenant name and address block
-- Blank line
-- Landlord name${landlordAddress?` and address`:''}
+- Landlord name${landlordAddress?' and address':''}
 - RE: Formal Demand for Return of Security Deposit — ${fullAddress}
 - Dear ${landlordName},
-- Opening paragraph: formal notice of failure to return $${disputed} CAD under ${act}
-- Second paragraph: missed the ${days}-day statutory deadline from ${moveOutDate}
-- Third paragraph: specific dispute grounds — write each point as a full clear sentence
-${extraDetails?'- Fourth paragraph: incorporate the tenant\'s additional context professionally and naturally into the dispute narrative':''}
-- Demand paragraph: return $${disputed} CAD within 14 days or face application to ${tribunal} and potential additional penalties under provincial law
-- Closing: "Yours truly," + ${fullName} signature block with address
-- Professional paralegal tone throughout — firm, factual, no emotional language
-- Do not use any placeholder brackets`;
+- First person throughout — "I", "my", "me"
+- Opening: "I am writing to formally demand..."
+- Cite ${act} by name
+- State landlord missed the ${days}-day deadline from ${moveOutDate}
+- List dispute grounds as clear sentences
+${extraDetails?'- Incorporate additional details naturally':''}
+- Demand $${disputed} CAD within 14 days or I will file with ${tribunal}
+- Closing: "Yours truly," + ${fullName} signature block
+- Professional paralegal tone — firm, factual, no emotional language`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':process.env.ANTHROPIC_API_KEY,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1400,messages:[{role:'user',content:prompt}]}),
+      body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:1200,messages:[{role:'user',content:prompt}]}),
     });
     const data = await response.json();
     if(!response.ok||data.error) return res.status(500).json({error:data.error?.message||'API error'});
