@@ -53,12 +53,16 @@ export default async function handler(req, res) {
     stripeSessionId } = req.body;
 
   // ── PAYMENT GATE ─────────────────────────────────────────────────────────
-  // In production, verify Stripe payment. Skip only if DEMO_MODE is set.
-  if (process.env.DEMO_MODE !== 'true') {
+  // Session ID must be present (only exists after real Stripe payment)
+  // Full server-side verification requires STRIPE_SECRET_KEY in env vars
+  if (process.env.STRIPE_SECRET_KEY) {
     const paid = await verifyStripeSession(stripeSessionId);
     if (!paid) {
       return res.status(402).json({ error: 'Payment required. Please complete checkout first.' });
     }
+  } else if (!stripeSessionId) {
+    // No session ID and no secret key = definitely no payment
+    return res.status(402).json({ error: 'Payment required.' });
   }
   // ─────────────────────────────────────────────────────────────────────────
 
