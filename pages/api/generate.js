@@ -28,43 +28,15 @@ const REASON_LABELS = {
   noinspection:'No move-out inspection was conducted by the landlord',
 };
 
-// Verify Stripe payment session before generating
-async function verifyStripeSession(sessionId) {
-  if (!sessionId) return false;
-  try {
-    const res = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sessionId}`, {
-      headers: {
-        'Authorization': `Bearer ${process.env.STRIPE_SECRET_KEY}`,
-      },
-    });
-    const session = await res.json();
-    // Must be a completed payment
-    return session.payment_status === 'paid';
-  } catch {
-    return false;
-  }
-}
+
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { province, fullName, fullAddress, landlordName, landlordAddress,
-    moveOutDate, depositAmount, returnedAmount, reasons, extraDetails,
-    stripeSessionId } = req.body;
+    moveOutDate, depositAmount, returnedAmount, reasons, extraDetails } = req.body;
 
-  // ── PAYMENT GATE ─────────────────────────────────────────────────────────
-  // Session ID must be present (only exists after real Stripe payment)
-  // Full server-side verification requires STRIPE_SECRET_KEY in env vars
-  if (process.env.STRIPE_SECRET_KEY) {
-    const paid = await verifyStripeSession(stripeSessionId);
-    if (!paid) {
-      return res.status(402).json({ error: 'Payment required. Please complete checkout first.' });
-    }
-  } else if (!stripeSessionId) {
-    // No session ID and no secret key = definitely no payment
-    return res.status(402).json({ error: 'Payment required.' });
-  }
-  // ─────────────────────────────────────────────────────────────────────────
+
 
   const disputed = (parseFloat(depositAmount) - parseFloat(returnedAmount||0)).toFixed(2);
   const act = LEGISLATION[province] || 'the applicable Residential Tenancies Act';
