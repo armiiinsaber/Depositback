@@ -164,12 +164,21 @@ export default function DepositBack() {
     window.location.href = STRIPE_LINK + '?success_url=' + successUrl;
   };
 
-  const generateLetter = async () => {
+  const generateLetter = async (overrideData) => {
     setError(''); setStep('generating');
+    // Use overrideData if passed (from post-payment redirect), otherwise use form state
+    const payload = overrideData || { ...form, fullName, fullAddress };
+    // Always compute fullName/fullAddress from individual fields as fallback
+    if (!payload.fullName) {
+      payload.fullName = [payload.firstName, payload.middleName, payload.lastName].filter(Boolean).join(' ');
+    }
+    if (!payload.fullAddress) {
+      payload.fullAddress = [payload.unit ? 'Unit ' + payload.unit + ',' : '', payload.streetAddress, payload.city, payload.province, payload.postalCode].filter(Boolean).join(' ');
+    }
     try {
       const res = await fetch('/api/generate', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, fullName, fullAddress }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
