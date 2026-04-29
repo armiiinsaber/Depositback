@@ -293,7 +293,7 @@ export default function DepositBack() {
               <span style={{background:'#ff4d4d',color:'#fff',fontSize:11,fontWeight:700,padding:'3px 8px',borderRadius:4,letterSpacing:'1px'}}>30% OFF</span>
               <span style={{color:'#3d6480',fontSize:14,textDecoration:'line-through'}}>$9.99 CAD</span>
             </div>
-            <button style={s.cta} onClick={() => setStep('form')}>Start My Letter — $6.99 →</button>
+            <button style={s.cta} onClick={() => setStep('form')}>Get My Letter — $6.99</button>
           </div>
         </div>
       </div>
