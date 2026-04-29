@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
 const GlobalStyle = () => (
-  <style global jsx>{`
+  <style>{`
+    html, body, #__next { margin: 0 !important; padding: 0 !important; background: #08121f !important; overflow-x: hidden; box-sizing: border-box; }
     * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: #08121f; overflow-x: hidden; }
   `}</style>
 );
 
@@ -255,7 +255,7 @@ export default function DepositBack() {
             <span style={{background:'#ff4d4d',color:'#fff',fontSize:11,fontWeight:700,padding:'3px 8px',borderRadius:4,letterSpacing:'1px'}}>30% OFF</span>
             <span style={{color:'#3d6480',fontSize:14,textDecoration:'line-through'}}>$9.99 CAD</span>
           </div>
-          <button style={{...s.cta, whiteSpace:'nowrap'}} onClick={() => setStep('form')} style={{...s.cta,whiteSpace:'nowrap'}}>Get My Letter — $6.99</button>
+          <button style={{...s.cta,whiteSpace:'nowrap',fontSize:14}} onClick={() => setStep('form')}>Get My Letter — $6.99</button>
         </div>
         <p style={s.note}>One-time · No account · Letter in 60 seconds</p>
       </div>
@@ -293,7 +293,7 @@ export default function DepositBack() {
               <span style={{background:'#ff4d4d',color:'#fff',fontSize:11,fontWeight:700,padding:'3px 8px',borderRadius:4,letterSpacing:'1px'}}>30% OFF</span>
               <span style={{color:'#3d6480',fontSize:14,textDecoration:'line-through'}}>$9.99 CAD</span>
             </div>
-            <button style={s.cta} onClick={() => setStep('form')}>Start My Letter — $6.99 CAD →</button>
+            <button style={s.cta} onClick={() => setStep('form')}>Start My Letter — $6.99 →</button>
           </div>
         </div>
       </div>
@@ -416,7 +416,7 @@ export default function DepositBack() {
           {error && <div style={s.error}>{error}</div>}
 
           <button style={{...s.cta,width:'100%',padding:16,fontSize:16,opacity:isValid?1:0.4,boxSizing:'border-box'}} onClick={isValid?generate:undefined} disabled={!isValid}>
-            🔒 {isValid ? 'Generate My Letter — $6.99 CAD' : 'Complete required fields above'}
+            🔒 {isValid ? 'Get My Letter — $6.99' : 'Complete required fields above'}
           </button>
           <p style={{...s.note,marginTop:10}}>Secure payment via Stripe · Apple Pay & Google Pay accepted</p>
         </div>
