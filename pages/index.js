@@ -50,6 +50,7 @@ const REASONS = [
 
 const EMPTY = {
   province: '', firstName: '', middleName: '', lastName: '',
+  email: '',
   unit: '', streetAddress: '', city: '', postalCode: '',
   landlordName: '', landlordAddress: '',
   moveOutDate: '', depositAmount: '', returnedAmount: '',
@@ -94,6 +95,7 @@ export default function DepositBack() {
   const fullName = [form.firstName, form.middleName, form.lastName].filter(Boolean).join(' ');
   const fullAddress = [form.unit ? `Unit ${form.unit},` : '', form.streetAddress, form.city, form.province, form.postalCode].filter(Boolean).join(' ');
   const isValid = form.province && form.firstName && form.lastName &&
+    form.email && form.email.includes('@') &&
     form.streetAddress && form.city && form.postalCode &&
     form.landlordName && form.moveOutDate &&
     parseFloat(form.depositAmount) > 0 && form.reasons.length > 0;
@@ -125,6 +127,19 @@ export default function DepositBack() {
       setLetter(data.letter);
       setEditedLetter(data.letter);
       setStep('result');
+      // Fire-and-forget email delivery — don't block the UI
+      if (payload.email) {
+        fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: payload.email,
+            letter: data.letter,
+            tenantName: payload.fullName,
+            province: payload.province,
+          }),
+        }).catch(() => {}); // silently fail — user still has the letter on screen
+      }
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
       setStep('form');
@@ -323,6 +338,19 @@ export default function DepositBack() {
             <div style={s.field}><label style={s.label}>Last Name</label><input style={s.input} placeholder='Smith' value={form.lastName} onChange={e=>f('lastName',e.target.value)} /></div>
           </div>
 
+          <div style={s.sectionHeader}>Your Email</div>
+          <div style={s.field}>
+            <label style={s.label}>Email Address</label>
+            <input
+              style={s.input}
+              type='email'
+              placeholder='jane@email.com'
+              value={form.email}
+              onChange={e=>f('email',e.target.value)}
+            />
+            <p style={s.hint}>✦ Your letter will be emailed here as PDF + Word — so you never lose it</p>
+          </div>
+
           <div style={s.sectionHeader}>Rental Property Address</div>
           <div style={s.row}>
             <div style={s.field}><label style={s.label}>Unit / Apt <span style={s.optional}>(optional)</span></label><input style={s.input} placeholder='4B' value={form.unit} onChange={e=>f('unit',e.target.value)} /></div>
@@ -411,6 +439,12 @@ export default function DepositBack() {
           <div style={s.badge}>✓ Letter Generated</div>
           <h2 style={{...s.formTitle,marginBottom:4}}>Your Demand Letter Is Ready</h2>
           <p style={s.formSub}>Review it, make any edits, then download as PDF and send.</p>
+          {form.email && (
+            <div style={{background:'rgba(90,172,255,0.08)',border:'1px solid rgba(90,172,255,0.2)',borderRadius:8,padding:'12px 16px',marginBottom:20,fontSize:13,color:'#8ab4d4',display:'flex',alignItems:'center',gap:8}}>
+              <span>📧</span>
+              <span>PDF + Word copy sent to <strong style={{color:'#5aacff'}}>{form.email}</strong> — check your inbox</span>
+            </div>
+          )}
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
             <span style={{fontSize:12,color:'#3d6480'}}>{editing?'✏️ Editing mode — changes are yours':'📄 Read mode'}</span>
             <button onClick={()=>setEditing(e=>!e)} style={{background:'transparent',border:'1px solid #1b3454',color:'#5aacff',padding:'6px 14px',borderRadius:6,cursor:'pointer',fontSize:12,fontFamily:'inherit'}}>
